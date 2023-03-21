@@ -3,7 +3,7 @@ import plotly.express as px
 
 #https://plotly.com/python/plotly-express/#gallery
 
-with open('dati.csv') as csv_file:
+with open('./dati.csv') as csv_file:
 
     df=pd.read_csv(csv_file)
 
@@ -28,7 +28,7 @@ with open('dati.csv') as csv_file:
     preferenze_per_creatore = preferenze_per_creatore.sort_values("creatorName", ascending=False)
     fig3 = px.pie(preferenze_per_creatore, values="creatorName", names="creatorName", title="Distribuzione per creatore")
     #fig3.show()
-    fig3.write_image("/Users/raffaelemarino/Desktop/tesi/fig3.jpeg")
+    fig3.write_image("./fig3.jpeg")
 
     
     
