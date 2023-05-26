@@ -31,6 +31,6 @@ with open('../dati.csv') as csv_file:
     #fig3.show()
     fig3.write_image("../fig3.jpeg")
 
-    
+     
     
   

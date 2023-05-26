@@ -1,0 +1,23 @@
+isDoRecipe = ??? non so cosa sia, sono tutti false
+
+id = alcune si ripetono, sono aggiornamenti, si potrebbe vedere quante aggiornate negli anni 
+
+title = inutile ai fini di analisi
+
+desc = inutile ai fini di analisi
+
+triggers = triggerChannel e trigger con relativa descrizione, id, titolo, url 
+
+actions = actionChannel e action con relativa descrizione, id, titolo, url 
+
+favoritesCount = non capisco, sarebbe quanta gente ha messo nei favoriti questa skill? sembrano tutti vuoti 
+
+addCount = non capisco, sarebbe quanta gente ha aggiunto questa skill alla propria app?
+
+creatorName = potrebbe tornare utile se vogliamo vedere quante skill craete da un creatore
+
+creatorUrl = inutile ai fini di analisi
+
+url = inutile ai fini di analisi
+
+created = data di creazione, può tornare utile per analisi
