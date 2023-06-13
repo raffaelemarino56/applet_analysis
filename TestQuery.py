@@ -13,9 +13,9 @@ def main():
     #numCreatorName(collection)
     #argomento(collection)
     #max_addCount(collection,"addCount")
-    #prime_venti_skill(collection,"addCount")
+    print(prime_venti_skill(collection,"addCount"))
     #repetition(collection)
-    channelDifferenti(collection)
+    #channelDifferenti(collection)
 
 
 
@@ -113,10 +113,54 @@ def repetition(collection):
             print(f"id: {campo1}, creatorName: {campo2}, ripetute: {conteggio}")
 
 
+#Da controllare
+def prime_venti_skill(collection,campo):
+    stringa="le prime 20 skill sono:"
+
+    # Esegui la query per trovare i valori più alti
+    #documenti_max = collection.find().sort(campo, -1).limit(20)
+    
+    pipeline = [
+        {"$sort": {campo: -1}},
+        {"$limit": 200},
+        {"$group": {"_id": {"id": "$id", "creatore": "$creatorName", "titolo":"$title"}, "ripetute": {"$sum": 1}}}
+    ]
+
+    results = collection.aggregate(pipeline)
+    
+    # risultati
+    for documento in results:
+        stringa+=(f' - {documento["_id"]["titolo"]}')
+    return stringa
+
+
 #WIP
-def argomento(collection):
+def argomentiPiuRicorrenti(collection):
     #tutte le descrizioni uniche, poi vedo quali sono IoT, quali social, quali business, Twitter, email, insstagram, facebook, note ecc
     #date uniche senza ripetizioni
+    #fai un dizionario con vari argomenti, magari quelli dei paper, poi controlli le ripetizioni di quelle parole nelle varie skill
+
+    dizionario={"Instagram":0,
+                "Facebook":0,
+                "Twitter":0,
+                "Google":0,
+                "Alexa":0,
+                "Calendar":0,
+                "Amazon":0,
+                "Andorid":0,
+                "pics":0,
+                "IFTTT":0,
+                "Philips":0,
+                "Xiaomi":0,
+                "Bulb":0,
+                "spradsheet":0,
+                "Weather":0,
+                "iOS":0,
+                "location":0,
+                "":0,
+                "":0,
+                "":0}
+    
     descUnici = [{"$group": {"_id": "$desc", "count": {"$sum": 1}}}]
     risdesc = list(collection.aggregate(descUnici))
     y=0
@@ -125,20 +169,6 @@ def argomento(collection):
         
         y=y+1
     return(f'ci sono {y} desc uniche ')
-
-
-#WIP
-def prime_venti_skill(collection,campo):
-    stringa="le prime 20 skill sono: "
-
-    #prima trovo le skill senza ripetizioni
-
-    # Esegui la query per trovare i valori più alti
-    documenti_max = collection.find().sort(campo, -1).limit(20)
-    # risultati
-    for documento in documenti_max:
-        stringa+=(f'- {documento["addCount"]}')
-    return stringa
 
 
 
