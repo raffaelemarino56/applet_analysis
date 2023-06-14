@@ -7,15 +7,18 @@ def main():
 
     tot = collection.count_documents({})
 
+    doc=dizionarioIdUnici(collection)
+
     #print(skillNegliAnni(collection))
     #valUnici(collection,tot)
     #addCount100(collection)
     #numCreatorName(collection)
     #argomento(collection)
     #max_addCount(collection,"addCount")
-    print(prime_venti_skill(collection,"addCount"))
+    #print(prime_venti_skill(collection,"addCount"))
     #repetition(collection)
-    #channelDifferenti(collection)
+    channelDifferenti(collection,doc)
+    #boh(collection,doc)
 
 
 
@@ -28,6 +31,19 @@ def connection():
 
 
 ########################QUERY########################
+
+def dizionarioIdUnici(collection):
+    doc={}
+    i=0
+    #skill con id unico
+    pipeline = [{"$group": {"_id": {"id": "$id","trigger":"$triggers", "actions": "$actions","titolo":"$title","creatore":"$creatorName"}, "ripetute": {"$sum": 1}}}]
+    result = list(collection.aggregate(pipeline))
+    
+    for val in result:
+        doc[i] = val["_id"]
+        i=i+1
+    
+    return doc
 
 def skillNegliAnni(collection):
     risposta=""
@@ -171,8 +187,6 @@ def argomentiPiuRicorrenti(collection):
     return(f'ci sono {y} desc uniche ')
 
 
-
-
 #WIP (stessa regola channel diversi)
 # o regole con stesso funzionamento (stesso actionId), però con channel diversi (actionChannelId) (servizi)
 #stesso trigger stessi action, il trigger è un evento, definire quanto simili solo action e trigger
@@ -183,16 +197,10 @@ def argomentiPiuRicorrenti(collection):
 #a parità di azione quanti servizi ci sono che fanno cose diverse
 #es. xiaomi e philips (sono i channel) quante regole ci sono che accendono le lampadine con trigger e action simile ma channel () diverso
 # cluster con tutte regole simili in un unico file 
-def channelDifferenti(collection):
-
-    #skill con id unico
-    pipeline = [{"$group": {"_id": {"id": "$id", "actions": "$actions"}, "ripetute": {"$sum": 1}}}]
-    result = list(collection.aggregate(pipeline))
+def channelDifferenti(collection,doc):
     
-    doc = result[0]['_id']["actions"]
-    dizionario = ast.literal_eval(doc)
-    print(dizionario[0]['actionChannelTitle'])
-
+    #COME CONTO IL NUM DI ACTION? COME PRENDO SOLO I CHANNEL?
+    print(doc[0]['actions'])
 
 
 #WIP (come lo faccio a capire? scrivi per mail per chiarimenti, mi devo basare sulla transitività? come arrivo a un punto A a un punto B attraverso più regole?)
@@ -201,11 +209,12 @@ def channelDifferenti(collection):
 
 #se l'action di una regola è simile al trigger di un'altra regola
 #
-def boh(collection):
+def boh(collection,doc):
 
-
-    
+    #devo controllare per ogni trigger le varie action, magari farlo per un num limitato
     return
+    
+    
 
 
 #query di test
