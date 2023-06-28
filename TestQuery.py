@@ -9,15 +9,16 @@ def main():
 
     doc=dizionarioIdUnici(collection)
 
-    #print(skillNegliAnni(collection))
-    #valUnici(collection,tot)
-    #addCount100(collection)
-    #numCreatorName(collection)
-    #argomento(collection)
-    #max_addCount(collection,"addCount")
+    #print(skillNegliAnni(collection)) #<-controlla
+    #valUnici(collection,tot) #<-
+    #addCount100(collection) #<- fai prime 20 skill più scaricate
+    #numCreatorName(collection) #<- fai i primi 20 craetor name per numero di skill scaricate
+    #argomento(collection) #<-???
+    #max_addCount(collection,"addCount") <-LA skill più scaricata
     #print(prime_venti_skill(collection,"addCount"))
+    argomentiPiuRicorrenti(collection,doc)
     #repetition(collection)
-    channelDifferenti(collection,doc)
+    #channelDifferenti(collection,doc)
     #boh(collection,doc)
 
 
@@ -117,16 +118,18 @@ def max_addCount(collection,campo):
 def repetition(collection):
 
     #skill con id unico
-    pipeline = [{"$group": {"_id": {"id": "$id", "creatorName": "$creatorName"}, "ripetute": {"$sum": 1}}}]
+    pipeline = [{"$group": {"_id": {"id": "$id", "creatorName": "$creatorName"}, "ripetute": {"$sum": 1}}},{"$sort":{"ripetute":1}}] 
     result = list(collection.aggregate(pipeline))
 
     #stampo skill ripetute più volte
-    for doc in result:
-        if doc['ripetute'] > 1:
-            campo1 = doc['_id']['id']
-            campo2 = doc['_id']['creatorName']
-            conteggio = doc['ripetute']
-            print(f"id: {campo1}, creatorName: {campo2}, ripetute: {conteggio}")
+    with open("outputIdRepetition.txt", "w") as file:
+        for doc in result:
+            if doc['ripetute'] > 1:
+                campo1 = doc['_id']['id']
+                campo2 = doc['_id']['creatorName']
+                conteggio = doc['ripetute']
+                file.write(f"\nid: {campo1}, creatorName: {campo2}, ripetute: {conteggio}")
+                #print(f"\nid: {campo1}, creatorName: {campo2}, ripetute: {conteggio}")
 
 
 #Da controllare
@@ -145,46 +148,58 @@ def prime_venti_skill(collection,campo):
     results = collection.aggregate(pipeline)
     
     # risultati
+    i=1
     for documento in results:
-        stringa+=(f' - {documento["_id"]["titolo"]}')
+        stringa+=(f'\n -{i} {documento["_id"]["titolo"]}')
+        i=i+1
     return stringa
 
 
 #WIP
-def argomentiPiuRicorrenti(collection):
+def argomentiPiuRicorrenti(collection,doc):
     #tutte le descrizioni uniche, poi vedo quali sono IoT, quali social, quali business, Twitter, email, insstagram, facebook, note ecc
     #date uniche senza ripetizioni
     #fai un dizionario con vari argomenti, magari quelli dei paper, poi controlli le ripetizioni di quelle parole nelle varie skill
 
-    dizionario={"Instagram":0,
-                "Facebook":0,
-                "Twitter":0,
+    dizionario={"open":0,
+                "close":0,
+                "volume down":0,
+                "music":0,
+                "volume up":0,
                 "Google":0,
                 "Alexa":0,
                 "Calendar":0,
                 "Amazon":0,
-                "Andorid":0,
-                "pics":0,
+                "photo":0,
                 "IFTTT":0,
-                "Philips":0,
-                "Xiaomi":0,
+                "alarm":0,
+                "conditioner":0,
                 "Bulb":0,
-                "spradsheet":0,
+                "color":0,
                 "Weather":0,
-                "iOS":0,
                 "location":0,
-                "":0,
-                "":0,
-                "":0}
+                "tweet":0,
+                "post":0,
+                "turn on":0,
+                "turn off":0}
+    i=0
     
-    descUnici = [{"$group": {"_id": "$desc", "count": {"$sum": 1}}}]
-    risdesc = list(collection.aggregate(descUnici))
-    y=0
-    categorie={"Instagram":0,"mail":0,"Iot":0}
-    for valore in risdesc:
+    for i in range(len(doc)):
+        try:
+            stringa = doc[i]['actions']
+            dizionarioAppoggio = eval(stringa[1:-1])
+            if isinstance(dizionarioAppoggio["actionTitle"],str):
+                for chiave in dizionario:
+                    if chiave.lower() in dizionarioAppoggio["actionTitle"].lower():
+                        dizionario[chiave]+=1
+            else:
+                print("false")
+        except Exception as e:
+            pass
         
-        y=y+1
-    return(f'ci sono {y} desc uniche ')
+        i+=1   
+    
+    print(dizionario)
 
 
 #WIP (stessa regola channel diversi)
@@ -200,7 +215,9 @@ def argomentiPiuRicorrenti(collection):
 def channelDifferenti(collection,doc):
     
     #COME CONTO IL NUM DI ACTION? COME PRENDO SOLO I CHANNEL?
-    print(doc[0]['actions'])
+    stringa = doc[0]['actions']
+    dizionario = eval(stringa[1:-1])
+    print(dizionario["actionChannelTitle"])
 
 
 #WIP (come lo faccio a capire? scrivi per mail per chiarimenti, mi devo basare sulla transitività? come arrivo a un punto A a un punto B attraverso più regole?)
