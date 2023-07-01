@@ -1,5 +1,5 @@
 from pymongo import MongoClient
-import ast
+import Levenshtein
 
 def main():
     
@@ -10,15 +10,16 @@ def main():
     doc=dizionarioIdUnici(collection)
 
     #print(skillNegliAnni(collection)) #<-controlla
-    #valUnici(collection,tot) #<-
+    #valUnici(collection,tot) #<- done
     #addCount100(collection) #<- fai prime 20 skill più scaricate
     #numCreatorName(collection) #<- fai i primi 20 craetor name per numero di skill scaricate
     #argomento(collection) #<-???
-    #max_addCount(collection,"addCount") <-LA skill più scaricata
-    #print(prime_venti_skill(collection,"addCount"))
-    argomentiPiuRicorrenti(collection,doc)
+    #max_addCount(collection,"addCount") #<-LA skill più scaricata
+    #print(prime_venti_skill(collection,"addCount")) #<- done
+    #argomentiPiuRicorrenti(collection,doc) #<- done
+    #channelDifferenti(collection,doc) #<- done
+    
     #repetition(collection)
-    #channelDifferenti(collection,doc)
     #boh(collection,doc)
 
 
@@ -43,7 +44,7 @@ def dizionarioIdUnici(collection):
     for val in result:
         doc[i] = val["_id"]
         i=i+1
-    
+        
     return doc
 
 def skillNegliAnni(collection):
@@ -213,11 +214,64 @@ def argomentiPiuRicorrenti(collection,doc):
 #es. xiaomi e philips (sono i channel) quante regole ci sono che accendono le lampadine con trigger e action simile ma channel () diverso
 # cluster con tutte regole simili in un unico file 
 def channelDifferenti(collection,doc):
+
+    i=0
+    simile=0
+    ratio=0
+    percentuale=0.8
+
+    with open("file.txt", "w") as file:
+        file.write(f"range di confronto {len(doc)}*{len(doc)} con percentuale di similarità del {percentuale}%")
+        file.write("\n")
+
+        for i in range(len(doc)):
+            j=0
+            try:
+
+                stringa1 = doc[i]['actions']
+                stringaAppoggio1 = eval(stringa1[1:-1])
+
+                if isinstance(stringaAppoggio1["actionTitle"],str): #controllo se stringa valida
+
+                    #mi vado a prendere la seconda stringa
+                    for j in range(len(doc)):        
+                        if j!=i: #non mi serve confrontare la stringa con se stessa
+                        
+                            stringa2 = doc[j]['actions']
+                            stringaAppoggio2 = eval(stringa2[1:-1])
+                            
+                            if isinstance(stringaAppoggio2["actionTitle"],str): #controllo se stringa valida
+                                    #aumenta solo se c'è l'effettivo confronto fra stringhe
+                                    ratio+=1           
+
+                                    #inizio il calcolo della differenza fra le due stringe
+                                    distanza = Levenshtein.distance(stringaAppoggio1["actionTitle"], stringaAppoggio2["actionTitle"])
+                                    similarita = 1 - (distanza / max(len(stringaAppoggio1["actionTitle"]), len(stringaAppoggio2["actionTitle"])))
+                                    
+                                    if similarita > percentuale:
+                                        file.write(f'{stringaAppoggio1["actionTitle"]} --- simile al {percentuale}% alla stringa --- {stringaAppoggio2["actionTitle"]}')
+                                        file.write("\n")
+                                        simile+=1
+                                    
+                        j+=1
+
+            except Exception as e:
+                pass
+            
+            i+=1   
+        
+        prob=(simile/ratio)*100
+
+        file.write("\n")
+        file.write(f'{simile} stringe simili al {percentuale}% su {ratio} confronti per una percentuale di {prob}%')
+
+    print(f'{simile} stringe simili al {percentuale}% su {ratio} confronti per una percentuale di {prob}%')
+
     
     #COME CONTO IL NUM DI ACTION? COME PRENDO SOLO I CHANNEL?
-    stringa = doc[0]['actions']
-    dizionario = eval(stringa[1:-1])
-    print(dizionario["actionChannelTitle"])
+    #stringa = doc[0]['actions']
+    #dizionario = eval(stringa[1:-1])
+    #print(dizionario["actionChannelTitle"])
 
 
 #WIP (come lo faccio a capire? scrivi per mail per chiarimenti, mi devo basare sulla transitività? come arrivo a un punto A a un punto B attraverso più regole?)
