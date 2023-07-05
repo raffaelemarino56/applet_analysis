@@ -18,7 +18,8 @@ def main():
     #print(prime_venti_skill(collection,"addCount")) #<- done
     #argomentiPiuRicorrenti(collection,doc) #<- done
     #channelDifferenti(collection,doc) #<- done
-    
+    #privacy(doc) #<- done
+
     #repetition(collection)
     #boh(collection,doc)
 
@@ -272,6 +273,36 @@ def channelDifferenti(collection,doc):
     #stringa = doc[0]['actions']
     #dizionario = eval(stringa[1:-1])
     #print(dizionario["actionChannelTitle"])
+
+
+#controllare la privacy delle skill, quante richiedono accesso a email o postare su twitter che non sono di google (email) o Twitter (post a tweet)
+def privacy(doc):
+    i=0
+    noGoogle = 0
+    noTwitter = 0
+    noPhoto = 0
+    for i in range(len(doc)):
+        try:
+            stringa1 = doc[i]['actions']
+            stringaAppoggio1 = eval(stringa1[1:-1])
+            actionTitle=stringaAppoggio1["actionTitle"]
+
+            if isinstance(actionTitle,str): #controllo se stringa valida
+                if "Google" not in stringaAppoggio1['actionChannelTitle'] and "email" in actionTitle:
+                    noGoogle+=1
+                if "Twitter" not in stringaAppoggio1['actionChannelTitle'] and "tweet" in actionTitle:
+                    noTwitter+=1
+                if "Google" not in stringaAppoggio1['actionChannelTitle'] and "photo" in actionTitle:
+                    noPhoto+=1
+
+        except Exception as e:
+            pass
+        
+        i+=1
+
+    print(f'il numero di action che potrebbero violare la privacy in quanto non sono delle seguenti aziende ma compiono azioni quali "mandare mail" / "postare su twitter" / "usare foto" sono:  Google = {noGoogle} --- Twitter = {noTwitter} --- Photo = {noPhoto}')
+
+
 
 
 #WIP (come lo faccio a capire? scrivi per mail per chiarimenti, mi devo basare sulla transitività? come arrivo a un punto A a un punto B attraverso più regole?)
