@@ -1,6 +1,11 @@
 from pymongo import MongoClient
 import Levenshtein
 
+class CategoriaAnnue:
+    def __init__(self, categoria, anno):
+        self.nome = categoria
+        self.eta = anno
+
 def main():
     
     collection=connection()
@@ -13,14 +18,17 @@ def main():
     #valUnici(collection,tot) #<- done
     #addCount100(collection) #<- fai prime 20 skill più scaricate
     #numCreatorName(collection) #<- fai i primi 20 craetor name per numero di skill scaricate
-    #argomento(collection) #<-???
     #max_addCount(collection,"addCount") #<-LA skill più scaricata
     #print(prime_venti_skill(collection,"addCount")) #<- done
     #argomentiPiuRicorrenti(collection,doc) #<- done
     #channelDifferenti(collection,doc) #<- done
     #privacy(doc) #<- done
+    #iotapp(doc) #<- done
+    appletAnnue(doc)
+
 
     #repetition(collection)
+    #argomento(collection) #<-???
     #boh(collection,doc)
 
 
@@ -30,7 +38,7 @@ def connection():
     # Connessione a MongoDB
     client = MongoClient('mongodb://localhost:27017')
     db = client['Tesi']
-    return db['Tesi']
+    return db['TesiV2']
 
 
 ########################QUERY########################
@@ -39,7 +47,7 @@ def dizionarioIdUnici(collection):
     doc={}
     i=0
     #skill con id unico
-    pipeline = [{"$group": {"_id": {"id": "$id","trigger":"$triggers", "actions": "$actions","titolo":"$title","creatore":"$creatorName"}, "ripetute": {"$sum": 1}}}]
+    pipeline = [{"$group": {"_id": {"id": "$id","trigger":"$triggers", "actions": "$actions","titolo":"$title","creatore":"$creatorName","dataCreata":"$created"}, "ripetute": {"$sum": 1}}}]
     result = list(collection.aggregate(pipeline))
     
     for val in result:
@@ -301,6 +309,75 @@ def privacy(doc):
         i+=1
 
     print(f'il numero di action che potrebbero violare la privacy in quanto non sono delle seguenti aziende ma compiono azioni quali "mandare mail" / "postare su twitter" / "usare foto" sono:  Google = {noGoogle} --- Twitter = {noTwitter} --- Photo = {noPhoto}')
+
+
+def iotapp(doc):
+    iot=0
+    keyword = ["turn on","light","turn off","iot"]
+    for i in range(len(doc)):
+        try:
+            stringa1 = doc[i]['actions']
+            stringaAppoggio1 = eval(stringa1[1:-1])
+            actionDesc=stringaAppoggio1["actionDesc"]
+            if isinstance(actionDesc,str): #controllo se stringa valida
+                for val in keyword:
+                    if val in actionDesc:
+                        iot+=1
+        except Exception as e:
+            pass
+
+        i+=1
+
+    return(print(f'{iot} su {i} applet totali'))
+
+#TODO
+def categoriePercentuali(doc):
+    keyword=["light"]
+    dizionarioCat={"trigger":0,"voice":0,"button":0,"time":0,"weather":0,"other":0}
+
+
+#TODO
+#categorie divise per action desc, annue
+def appletAnnue(doc):
+    anni={"2023":0,"2022":0,"2021":0,"2020":0,"2019":0,"2018":0}
+    dizionario={"open":0,
+                "close":0,
+                "volume down":0,
+                "music":0,
+                "volume up":0,
+                "Google":0,
+                "Alexa":0,
+                "Calendar":0,
+                "Amazon":0,
+                "photo":0,
+                "IFTTT":0,
+                "alarm":0,
+                "conditioner":0,
+                "Bulb":0,
+                "color":0,
+                "Weather":0,
+                "location":0,
+                "tweet":0,
+                "post":0,
+                "turn on":0,
+                "turn off":0}
+
+    for i in range(len(doc)):
+        try:
+            stringa1 = doc[i]['actions']
+            stringaAppoggio1 = eval(stringa1[1:-1])
+            actionDesc=stringaAppoggio1["actionDesc"]
+            if isinstance(actionDesc,str): #controllo se stringa valida
+
+                i+=1
+        
+        except Exception as e:
+            pass
+
+        i+=1
+
+
+    return
 
 
 
