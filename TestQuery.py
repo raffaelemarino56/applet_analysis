@@ -24,7 +24,7 @@ def main():
     #channelDifferenti(collection,doc) #<- done
     #privacy(doc) #<- done
     #iotapp(doc) #<- done
-    appletAnnue(doc)
+    #appletAnnue(doc) #<- done
 
 
     #repetition(collection)
@@ -43,6 +43,7 @@ def connection():
 
 ########################QUERY########################
 
+#le sole applet ripetute una sola volta
 def dizionarioIdUnici(collection):
     doc={}
     i=0
@@ -56,6 +57,8 @@ def dizionarioIdUnici(collection):
         
     return doc
 
+
+#numero applet create negli anni
 def skillNegliAnni(collection):
     risposta=""
     #date uniche senza ripetizioni
@@ -75,9 +78,10 @@ def skillNegliAnni(collection):
 
     risposta+=(f'Ci sono sono:')
     for chiave, valore in anni.items():
-        risposta+=(f' - {valore} skill nel {chiave}')
+        risposta+=(f' - {valore} applet nel {chiave}')
     
     return risposta
+
 
 
 def valUnici(collection,tot):
@@ -93,6 +97,7 @@ def valUnici(collection,tot):
     print(f"Il numero di valori unici è: {numero_unici} su {tot} righe")
 
 
+#applet scaricate più di 100volte
 def addCount100(collection):
     #addCount maggiore di 100
     i=0
@@ -121,7 +126,7 @@ def max_addCount(collection,campo):
     # Estrai il valore massimo
     valore_massimo = documento_massimo[campo] if documento_massimo else None
     # Stampa il risultato
-    print(f"Il skill {titolo} ha {campo} di: {valore_massimo}")
+    print(f"l'applet {titolo} ha {campo} di: {valore_massimo}")
 
 
 # suddividiamo le regole per creator, se la regola è ripetutta piu volte
@@ -142,7 +147,7 @@ def repetition(collection):
                 #print(f"\nid: {campo1}, creatorName: {campo2}, ripetute: {conteggio}")
 
 
-#Da controllare
+#prima 20 skill più scaricate - Da controllare
 def prime_venti_skill(collection,campo):
     stringa="le prime 20 skill sono:"
 
@@ -165,7 +170,7 @@ def prime_venti_skill(collection,campo):
     return stringa
 
 
-#WIP
+#divisione applet per categorie
 def argomentiPiuRicorrenti(collection,doc):
     #tutte le descrizioni uniche, poi vedo quali sono IoT, quali social, quali business, Twitter, email, insstagram, facebook, note ecc
     #date uniche senza ripetizioni
@@ -202,8 +207,6 @@ def argomentiPiuRicorrenti(collection,doc):
                 for chiave in dizionario:
                     if chiave.lower() in dizionarioAppoggio["actionTitle"].lower():
                         dizionario[chiave]+=1
-            else:
-                print("false")
         except Exception as e:
             pass
         
@@ -212,7 +215,7 @@ def argomentiPiuRicorrenti(collection,doc):
     print(dizionario)
 
 
-#WIP (stessa regola channel diversi)
+#stessa regola channel diversi
 # o regole con stesso funzionamento (stesso actionId), però con channel diversi (actionChannelId) (servizi)
 #stesso trigger stessi action, il trigger è un evento, definire quanto simili solo action e trigger
 # "accendere la luce" ma magari scritti diversamente
@@ -276,12 +279,6 @@ def channelDifferenti(collection,doc):
 
     print(f'{simile} stringe simili al {percentuale}% su {ratio} confronti per una percentuale di {prob}%')
 
-    
-    #COME CONTO IL NUM DI ACTION? COME PRENDO SOLO I CHANNEL?
-    #stringa = doc[0]['actions']
-    #dizionario = eval(stringa[1:-1])
-    #print(dizionario["actionChannelTitle"])
-
 
 #controllare la privacy delle skill, quante richiedono accesso a email o postare su twitter che non sono di google (email) o Twitter (post a tweet)
 def privacy(doc):
@@ -310,7 +307,7 @@ def privacy(doc):
 
     print(f'il numero di action che potrebbero violare la privacy in quanto non sono delle seguenti aziende ma compiono azioni quali "mandare mail" / "postare su twitter" / "usare foto" sono:  Google = {noGoogle} --- Twitter = {noTwitter} --- Photo = {noPhoto}')
 
-
+#tutte le applet prettamente iot
 def iotapp(doc):
     iot=0
     keyword = ["turn on","light","turn off","iot"]
@@ -330,16 +327,11 @@ def iotapp(doc):
 
     return(print(f'{iot} su {i} applet totali'))
 
-#TODO
-def categoriePercentuali(doc):
-    keyword=["light"]
-    dizionarioCat={"trigger":0,"voice":0,"button":0,"time":0,"weather":0,"other":0}
 
-
-#TODO
-#categorie divise per action desc, annue
+#categorie divise per actiondesc, annue
 def appletAnnue(doc):
-    anni={"2023":0,"2022":0,"2021":0,"2020":0,"2019":0,"2018":0}
+    risultato=""
+    anni=["2023","2022","2021","2020","2019","2018"]
     dizionario={"open":0,
                 "close":0,
                 "volume down":0,
@@ -361,26 +353,42 @@ def appletAnnue(doc):
                 "post":0,
                 "turn on":0,
                 "turn off":0}
+    #for per ogni anno
+    for val in anni:
+        for i in range(len(doc)):
+            try:
+                if val in str(doc[i]['dataCreata']):
+                    stringa1 = doc[i]['actions']
+                    stringaAppoggio1 = eval(stringa1[1:-1])
+                    actionDesc=stringaAppoggio1["actionDesc"]
+                    if isinstance(actionDesc,str): #controllo se stringa valida
+                            for chiave in dizionario:
+                                if chiave.lower() in actionDesc.lower():
+                                    dizionario[chiave]+=1
+            
+            except Exception as e:
+                pass
 
-    for i in range(len(doc)):
-        try:
-            stringa1 = doc[i]['actions']
-            stringaAppoggio1 = eval(stringa1[1:-1])
-            actionDesc=stringaAppoggio1["actionDesc"]
-            if isinstance(actionDesc,str): #controllo se stringa valida
+            i+=1
+        risultato+=f"per annno {val} i valori delle varie categorie sono {dizionario}"
+        risultato+="\n\n"
 
-                i+=1
-        
-        except Exception as e:
-            pass
+        for chiave in dizionario:
+            dizionario[chiave] = 0
 
-        i+=1
+    return (print(risultato))
 
 
-    return
+#TODO
+def categoriePercentuali(doc):
+    keyword=["light"]
+    dizionarioCat={"trigger":0,"voice":0,"button":0,"time":0,"weather":0,"other":0}
 
 
-
+        #COME CONTO IL NUM DI ACTION? COME PRENDO SOLO I CHANNEL?
+    #stringa = doc[0]['actions']
+    #dizionario = eval(stringa[1:-1])
+    #print(dizionario["actionChannelTitle"])
 
 #WIP (come lo faccio a capire? scrivi per mail per chiarimenti, mi devo basare sulla transitività? come arrivo a un punto A a un punto B attraverso più regole?)
 #
