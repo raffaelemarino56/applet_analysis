@@ -41,7 +41,7 @@ def connection():
     return db['TesiV2']
 
 
-########################QUERY########################
+################################################
 
 #le sole applet ripetute una sola volta
 def dizionarioIdUnici(collection):
@@ -57,6 +57,7 @@ def dizionarioIdUnici(collection):
         
     return doc
 
+########################QUERY########################
 
 #numero applet create negli anni
 def skillNegliAnni(collection):
@@ -83,7 +84,7 @@ def skillNegliAnni(collection):
     return risposta
 
 
-
+#applet uniche (come ho fatto per doc, un po' useless)
 def valUnici(collection,tot):
     #id unici senza ripetizioni
     idUnici = [
