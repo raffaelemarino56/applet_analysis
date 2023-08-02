@@ -1,11 +1,6 @@
 from pymongo import MongoClient
 import Levenshtein
 
-class CategoriaAnnue:
-    def __init__(self, categoria, anno):
-        self.nome = categoria
-        self.eta = anno
-
 def main():
     
     collection=connection()
@@ -25,7 +20,8 @@ def main():
     #privacy(doc) #<- done
     #iotapp(doc) #<- done
     #appletAnnue(doc) #<- done
-
+    categoriePercentuali(doc) #<- todo
+    #heatmap(doc) #<- done
 
     #repetition(collection)
     #argomento(collection) #<-???
@@ -382,22 +378,81 @@ def appletAnnue(doc):
 
 #TODO
 def categoriePercentuali(doc):
-    keyword=["light"]
-    dizionarioCat={"trigger":0,"voice":0,"button":0,"time":0,"weather":0,"other":0}
+    keyword="light"
+    dizionarioCat={"alexa":0,"button":0,"time":0,"weather":0,"other":0}
+
+    for i in range(len(doc)):
+            try:
+
+                stringa1 = doc[i]['trigger']
+                stringaAppoggio1 = eval(stringa1[1:-1])
+                triggerDesc=stringaAppoggio1["triggerDesc"]
+                if isinstance(triggerDesc,str): #controllo se stringa valida
+                    for chiave in dizionarioCat:
+                        if chiave in triggerDesc.lower():
+                            stringa2 = doc[i]["actions"]
+                            stringaAppoggio2 = eval(stringa2[1:-1])
+                            actionDesc = stringaAppoggio2["actionDesc"]
+                            if isinstance(actionDesc,str): #controllo se stringa valida
+                                if keyword in actionDesc.lower():
+                                    dizionarioCat[chiave]+=1
+            except Exception as e:
+                pass
+
+            i+=1
+
+    return (print(dizionarioCat))
 
 
-        #COME CONTO IL NUM DI ACTION? COME PRENDO SOLO I CHANNEL?
-    #stringa = doc[0]['actions']
-    #dizionario = eval(stringa[1:-1])
-    #print(dizionario["actionChannelTitle"])
 
-#WIP (come lo faccio a capire? scrivi per mail per chiarimenti, mi devo basare sulla transitività? come arrivo a un punto A a un punto B attraverso più regole?)
-#
+def heatmap(doc):
+
+    keywordTrigger=["location","data","dropbox","email","facebook","feed","fitbit","gmail","calendar","ifttt","instagram","pocket","reddit","sms","tumblr","twitter","weather","youtube"]
+    keywordAction={"sms":0,"dropbox":0,"email":0,"evernote":0,"facebook":0,"gmail":0,"calendar":0,"drive":0,"notifications":0,"reminders":0,"hue":0,"phone call":0,"pushbullet":0,"pushover":0,"slack":0,"sms":0,"tumblr":0,"twitter":0}
+    risultati=""
+
+    for k in keywordTrigger:
+        for i in range(len(doc)):
+                try:
+                    stringa1 = doc[i]['trigger']
+                    stringaAppoggio1 = eval(stringa1[1:-1])
+                    triggerDesc=stringaAppoggio1["triggerChannelTitle"]
+                    if isinstance(triggerDesc,str): #controllo se stringa valida
+                            if k in triggerDesc.lower():
+                                for chiave in keywordAction:
+                                    stringa2 = doc[i]["actions"]
+                                    stringaAppoggio2 = eval(stringa2[1:-1])
+                                    actionDesc = stringaAppoggio2["actionChannelTitle"]
+                                    if isinstance(actionDesc,str): #controllo se stringa valida
+                                        if chiave in actionDesc.lower():
+                                            keywordAction[chiave]+=1
+                except Exception as e:
+                    pass
+
+                i+=1
+        risultati+=f"per keyword: {k}, le actionTitle sono: {keywordAction}"
+        risultati+="\n"
+
+        #pulisco dizionario action
+        for x in keywordAction:
+            keywordAction[x]=0
+
+    return (print(risultati))
+
+
+    
+
+
+
+#TODO
+#latenza, da fare manualmente
+
+
+
+#WIP (mi devo basare sulla transitività? come arrivo a un punto A a un punto B attraverso più regole?)
 # se definisco tante regole, ma definendone di meno potrei avere lo stesso servizio
-
 #se l'action di una regola è simile al trigger di un'altra regola
-#
-def boh(collection,doc):
+def transitivita(doc):
 
     #devo controllare per ogni trigger le varie action, magari farlo per un num limitato
     return
@@ -418,6 +473,11 @@ def test(collection,tot):
     print("ci sono "+ str(ris_creatorUrl) +" url di creator su "+ str(tot) +" linee")
     return
 
+
+        #COME CONTO IL NUM DI ACTION? COME PRENDO SOLO I CHANNEL?
+    #stringa = doc[0]['actions']
+    #dizionario = eval(stringa[1:-1])
+    #print(dizionario["actionChannelTitle"])
 
 # Chiamata alla funzione main nel contesto globale
 if __name__ == "__main__":
