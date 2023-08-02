@@ -20,7 +20,7 @@ def main():
     #privacy(doc) #<- done
     #iotapp(doc) #<- done
     #appletAnnue(doc) #<- done
-    categoriePercentuali(doc) #<- todo
+    #categoriePercentuali(doc) #<- done
     #heatmap(doc) #<- done
 
     #repetition(collection)
@@ -376,32 +376,39 @@ def appletAnnue(doc):
     return (print(risultato))
 
 
-#TODO
+
 def categoriePercentuali(doc):
-    keyword="light"
+    keyword=["light","temperature","turn off","robot","camera","lock","close","air","alarm","vacuum"]
     dizionarioCat={"alexa":0,"button":0,"time":0,"weather":0,"other":0}
+    risultato=""
+    for k in keyword:
+        for i in range(len(doc)):
+                try:
+                    stringa2 = doc[i]["actions"]
+                    stringaAppoggio2 = eval(stringa2[1:-1])
+                    actionDesc = stringaAppoggio2["actionDesc"]
+                    if isinstance(actionDesc,str): #controllo se stringa valida
+                        if k in actionDesc.lower():
+                            stringa1 = doc[i]['trigger']
+                            stringaAppoggio1 = eval(stringa1[1:-1])
+                            triggerDesc=stringaAppoggio1["triggerDesc"]
+                            if isinstance(triggerDesc,str): #controllo se stringa valida
+                                for chiave in dizionarioCat:
+                                    if chiave in triggerDesc.lower():
+                                        dizionarioCat[chiave]+=1                                        
+                except Exception as e:
+                    pass
 
-    for i in range(len(doc)):
-            try:
+                i+=1
+        risultato+=f"per keyword: {k}, ci sono i seguenti trigger: {dizionarioCat}"        
+        risultato+="\n"
+        risultato+="\n"        
+        
+        #pulisco dizionario
+        for x in dizionarioCat:
+            dizionarioCat[x]=0
 
-                stringa1 = doc[i]['trigger']
-                stringaAppoggio1 = eval(stringa1[1:-1])
-                triggerDesc=stringaAppoggio1["triggerDesc"]
-                if isinstance(triggerDesc,str): #controllo se stringa valida
-                    for chiave in dizionarioCat:
-                        if chiave in triggerDesc.lower():
-                            stringa2 = doc[i]["actions"]
-                            stringaAppoggio2 = eval(stringa2[1:-1])
-                            actionDesc = stringaAppoggio2["actionDesc"]
-                            if isinstance(actionDesc,str): #controllo se stringa valida
-                                if keyword in actionDesc.lower():
-                                    dizionarioCat[chiave]+=1
-            except Exception as e:
-                pass
-
-            i+=1
-
-    return (print(dizionarioCat))
+    return (print(risultato))
 
 
 
