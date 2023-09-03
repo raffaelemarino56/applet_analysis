@@ -1,4 +1,5 @@
 from pymongo import MongoClient
+import math
 import Levenshtein
 
 def main():
@@ -9,14 +10,14 @@ def main():
 
     doc=dizionarioIdUnici(collection)
 
-    #print(skillNegliAnni(collection)) #<-controlla
-    #valUnici(collection,tot) #<- done
+    #skillNegliAnni(collection) #<- done
+    #valUnici(collection,tot) #<- id uniche
     #addCount100(collection) #<- fai prime 20 skill più scaricate
     #numCreatorName(collection) #<- fai i primi 20 craetor name per numero di skill scaricate
     #max_addCount(collection,"addCount") #<-LA skill più scaricata
-    #print(prime_venti_skill(collection,"addCount")) #<- done
+    #prime_venti_skill(collection,"addCount") #<- done
     #argomentiPiuRicorrenti(collection,doc) #<- done
-    #channelDifferenti(collection,doc) #<- done
+    #appletSimilitudine(collection,doc) #<- done
     #privacy(doc) #<- done
     #iotapp(doc) #<- done
     #appletAnnue(doc) #<- done
@@ -58,26 +59,35 @@ def dizionarioIdUnici(collection):
 #numero applet create negli anni
 def skillNegliAnni(collection):
     risposta=""
+    
     #date uniche senza ripetizioni
     dateUnici = [
         {"$group": {"_id": "$created", "count": {"$sum": 1}}},
         #{"$group": {"_id": None, "total": {"$sum": 1}}}
     ]
     risultato = list(collection.aggregate(dateUnici))
+
     anni={"2023":0,"2022":0,"2021":0,"2020":0,"2019":0,"2018":0}
     x=0
+    
     for val in risultato:
         stringa=str(val)
         for chiave, valore in anni.items():
             if str(chiave) in stringa:
                 anni[chiave]=anni[chiave]+risultato[x]['count']
+
         x=x+1
 
-    risposta+=(f'Ci sono sono:')
+    somma=0
     for chiave, valore in anni.items():
-        risposta+=(f' - {valore} applet nel {chiave}')
+        somma+=valore
+
+    risposta+=(f'Su {somma} applet, ci sono sono (in log base 10):')
+    for chiave, valore in anni.items():
+        logaritmo=math.log10(valore)
+        risposta+=(f' - {round(logaritmo,2)} applet nel {chiave}')
     
-    return risposta
+    print(risposta)
 
 
 #applet uniche (come ho fatto per doc, un po' useless)
@@ -164,7 +174,8 @@ def prime_venti_skill(collection,campo):
     for documento in results:
         stringa+=(f'\n -{i} {documento["_id"]["titolo"]}')
         i=i+1
-    return stringa
+
+    print(stringa)
 
 
 #divisione applet per categorie
@@ -222,7 +233,7 @@ def argomentiPiuRicorrenti(collection,doc):
 #a parità di azione quanti servizi ci sono che fanno cose diverse
 #es. xiaomi e philips (sono i channel) quante regole ci sono che accendono le lampadine con trigger e action simile ma channel () diverso
 # cluster con tutte regole simili in un unico file 
-def channelDifferenti(collection,doc):
+def appletSimilitudine(collection,doc):
 
     i=0
     simile=0
@@ -367,8 +378,10 @@ def appletAnnue(doc):
                 pass
 
             i+=1
-        risultato+=f"per annno {val} i valori delle varie categorie sono {dizionario}"
-        risultato+="\n\n"
+        #risultato+=f"per annno {val} i valori delle varie categorie sono {dizionario}"
+        for x in dizionario:
+            risultato+=f'{dizionario[x]} \n'
+        risultato+="-\n\n"
 
         for chiave in dizionario:
             dizionario[chiave] = 0
