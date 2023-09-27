@@ -1,6 +1,7 @@
 from pymongo import MongoClient
 import math
 import Levenshtein
+import xlsxwriter
 
 def main():
     
@@ -23,6 +24,10 @@ def main():
     #appletAnnue(doc) #<- done
     #categoriePercentuali(doc) #<- done
     #heatmap(doc) #<- done
+    #autorePerApplet(collection) #<- done
+    #addCountPerApplet(collection) #<- done
+    numAppletPerMese2023(collection)
+
 
     #repetition(collection)
     #argomento(collection) #<-???
@@ -88,6 +93,321 @@ def skillNegliAnni(collection):
         risposta+=(f' - {round(logaritmo,2)} applet nel {chiave}')
     
     print(risposta)
+
+
+#definisco quanti autori hanno fatto 1 sola applet, quanti 2 ecc ecc
+def autorePerApplet(collection):
+    query={}
+    risultato = collection.find(query)
+    dizionario=dict()
+    for val in risultato:
+        if val['creatorName'] in dizionario:
+            dizionario[val['creatorName']]+=1
+        else:
+            dizionario[val['creatorName']]=1
+    
+    dizionario_ordinato = dict(sorted(dizionario.items(), key=lambda x: x[1]))
+
+    
+    contatore = dict()
+    for a,b in dizionario_ordinato.items():
+        if b in contatore:
+            contatore[b]+=1
+        else:
+            contatore[b]=1
+    contatore_ordinato = dict(sorted(contatore.items(),key=lambda x: x[1]))
+
+    # creiamo il file
+    file_excel = xlsxwriter.Workbook('file_di_prova.xlsx')
+    # creiamo un foglio
+    foglio_excel = file_excel.add_worksheet()
+    # scriviamo nella prima cella nella prima colonna una stringa
+    foglio_excel.write('A1', 'chiave')
+    foglio_excel.write('B1', 'valore')
+    # chiudiamo il file
+    
+
+    fx = open("log3.txt","w")
+    #print(f'chiave: ; valore: ',file=fx)
+    i=2
+    for a,b in contatore_ordinato.items():
+        foglio_excel.write_row('A%d' % (i), [a])
+        foglio_excel.write_row('B%d' % (i), [b])
+        i+=1
+        #print(f'{a};{b}',file=fx)
+    file_excel.close()
+    #fx.close()
+
+
+#quante applet sono scaricate solo una volta, quante solo due ecc ecc
+def addCountPerApplet(collection):
+
+    query={}
+    risultato = collection.find(query)
+    dizionario={"0,100":1,"101,500":1,"501,1000":1,"1001,2000":1,"2001,5000":1,"5001,10000":1,"maggiore di 10000":1,"no range":1}
+
+    for val in risultato:
+        n=val['addCount']
+        if n in range(0,100):
+            dizionario["0,100"]+=1
+        elif n in range(101,500):
+            dizionario["101,500"]+=1
+        elif n in range(501,1000):
+            dizionario["501,1000"]+=1
+        elif n in range(1001,2000):
+            dizionario["1001,2000"]+=1
+        elif n in range(2001,5000):
+            dizionario["2001,5000"]+=1
+        elif n in range(5001,10000):
+            dizionario["5001,10000"]+=1
+        elif n>10001:
+            dizionario["maggiore di 10000"]+=1
+        else:
+            dizionario["no range"]+=1
+    
+    dizionario_ordinato = dict(sorted(dizionario.items(), key=lambda x: x[1]))
+
+    file_excel = xlsxwriter.Workbook('file_addcount3.xlsx')
+    foglio_excel = file_excel.add_worksheet()
+
+    # scriviamo nella prima cella nella prima colonna una stringa
+    foglio_excel.write('A1', 'addCount')
+    foglio_excel.write('B1', '#applet')    
+
+    i=2
+    for a,b in dizionario_ordinato.items():
+        foglio_excel.write_row('A%d' % (i), [a])
+        foglio_excel.write_row('B%d' % (i), [b])
+        i+=1
+
+    file_excel.close()
+
+    print(dizionario_ordinato)
+
+
+#mi calcolo mese per mese quante applet sono state create nell'anno 2023
+def numAppletPerMese2023(collection):
+    query={}
+    risultato = collection.find(query)
+    dizionario2018 = {"gen":0,"feb":0,"mar":0,"apr":0,"mag":0,"giu":0,"lug":0,"ago":0,"sett":0,"ott":0,"nov":0,"dic":0}
+    dizionario2019 = {"gen":0,"feb":0,"mar":0,"apr":0,"mag":0,"giu":0,"lug":0,"ago":0,"sett":0,"ott":0,"nov":0,"dic":0}
+    dizionario2020 = {"gen":0,"feb":0,"mar":0,"apr":0,"mag":0,"giu":0,"lug":0,"ago":0,"sett":0,"ott":0,"nov":0,"dic":0}
+    dizionario2021 = {"gen":0,"feb":0,"mar":0,"apr":0,"mag":0,"giu":0,"lug":0,"ago":0,"sett":0,"ott":0,"nov":0,"dic":0}
+    dizionario2022 = {"gen":0,"feb":0,"mar":0,"apr":0,"mag":0,"giu":0,"lug":0,"ago":0,"sett":0,"ott":0,"nov":0,"dic":0}
+    dizionario2023 = {"gen":0,"feb":0,"mar":0,"apr":0,"mag":0,"giu":0,"lug":0,"ago":0,"sett":0,"ott":0,"nov":0,"dic":0}
+    
+    
+    
+    
+    
+    for val in risultato:
+
+        if "2018" in val["created"]:
+            if "-01" in val["created"]:
+                dizionario2018["gen"]+=1
+            elif "-02" in val["created"]:
+                dizionario2018["feb"]+=1
+            elif "-03" in val["created"]:
+                dizionario2018["mar"]+=1
+            elif "-04" in val["created"]:
+                dizionario2018["apr"]+=1
+            elif "-05" in val["created"]:
+                dizionario2018["mag"]+=1
+            elif "-06" in val["created"]:
+                dizionario2018["giu"]+=1
+            elif "-07" in val["created"]:
+                dizionario2018["lug"]+=1
+            elif "-08" in val["created"]:
+                dizionario2018["ago"]+=1
+            elif "-09" in val["created"]:
+                dizionario2018["sett"]+=1
+            elif "-10" in val["created"]:
+                dizionario2018["ott"]+=1
+            elif "-11" in val["created"]:
+                dizionario2018["nov"]+=1
+            elif "-12" in val["created"]:
+                dizionario2018["dic"]+=1
+
+        if "2019" in val["created"]:
+            if "-01" in val["created"]:
+                dizionario2019["gen"]+=1
+            elif "-02" in val["created"]:
+                dizionario2019["feb"]+=1
+            elif "-03" in val["created"]:
+                dizionario2019["mar"]+=1
+            elif "-04" in val["created"]:
+                dizionario2019["apr"]+=1
+            elif "-05" in val["created"]:
+                dizionario2019["mag"]+=1
+            elif "-06" in val["created"]:
+                dizionario2019["giu"]+=1
+            elif "-07" in val["created"]:
+                dizionario2019["lug"]+=1
+            elif "-08" in val["created"]:
+                dizionario2019["ago"]+=1
+            elif "-09" in val["created"]:
+                dizionario2019["sett"]+=1
+            elif "-10" in val["created"]:
+                dizionario2019["ott"]+=1
+            elif "-11" in val["created"]:
+                dizionario2019["nov"]+=1
+            elif "-12" in val["created"]:
+                dizionario2019["dic"]+=1
+
+        if "2020" in val["created"]:
+            if "-01" in val["created"]:
+                dizionario2020["gen"]+=1
+            elif "-02" in val["created"]:
+                dizionario2020["feb"]+=1
+            elif "-03" in val["created"]:
+                dizionario2020["mar"]+=1
+            elif "-04" in val["created"]:
+                dizionario2020["apr"]+=1
+            elif "-05" in val["created"]:
+                dizionario2020["mag"]+=1
+            elif "-06" in val["created"]:
+                dizionario2020["giu"]+=1
+            elif "-07" in val["created"]:
+                dizionario2020["lug"]+=1
+            elif "-08" in val["created"]:
+                dizionario2020["ago"]+=1
+            elif "-09" in val["created"]:
+                dizionario2020["sett"]+=1
+            elif "-10" in val["created"]:
+                dizionario2020["ott"]+=1
+            elif "-11" in val["created"]:
+                dizionario2020["nov"]+=1
+            elif "-12" in val["created"]:
+                dizionario2020["dic"]+=1
+
+        if "2021" in val["created"]:
+            if "-01" in val["created"]:
+                dizionario2021["gen"]+=1
+            elif "-02" in val["created"]:
+                dizionario2021["feb"]+=1
+            elif "-03" in val["created"]:
+                dizionario2021["mar"]+=1
+            elif "-04" in val["created"]:
+                dizionario2021["apr"]+=1
+            elif "-05" in val["created"]:
+                dizionario2021["mag"]+=1
+            elif "-06" in val["created"]:
+                dizionario2021["giu"]+=1
+            elif "-07" in val["created"]:
+                dizionario2021["lug"]+=1
+            elif "-08" in val["created"]:
+                dizionario2021["ago"]+=1
+            elif "-09" in val["created"]:
+                dizionario2021["sett"]+=1
+            elif "-10" in val["created"]:
+                dizionario2021["ott"]+=1
+            elif "-11" in val["created"]:
+                dizionario2021["nov"]+=1
+            elif "-12" in val["created"]:
+                dizionario2021["dic"]+=1
+
+        if "2022" in val["created"]:
+            if "-01" in val["created"]:
+                dizionario2022["gen"]+=1
+            elif "-02" in val["created"]:
+                dizionario2022["feb"]+=1
+            elif "-03" in val["created"]:
+                dizionario2022["mar"]+=1
+            elif "-04" in val["created"]:
+                dizionario2022["apr"]+=1
+            elif "-05" in val["created"]:
+                dizionario2022["mag"]+=1
+            elif "-06" in val["created"]:
+                dizionario2022["giu"]+=1
+            elif "-07" in val["created"]:
+                dizionario2022["lug"]+=1
+            elif "-08" in val["created"]:
+                dizionario2022["ago"]+=1
+            elif "-09" in val["created"]:
+                dizionario2022["sett"]+=1
+            elif "-10" in val["created"]:
+                dizionario2022["ott"]+=1
+            elif "-11" in val["created"]:
+                dizionario2022["nov"]+=1
+            elif "-12" in val["created"]:
+                dizionario2022["dic"]+=1
+
+        if "2023" in val["created"]:
+            if "-01" in val["created"]:
+                dizionario2023["gen"]+=1
+            elif "-02" in val["created"]:
+                dizionario2023["feb"]+=1
+            elif "-03" in val["created"]:
+                dizionario2023["mar"]+=1
+            elif "-04" in val["created"]:
+                dizionario2023["apr"]+=1
+            elif "-05" in val["created"]:
+                dizionario2023["mag"]+=1
+            elif "-06" in val["created"]:
+                dizionario2023["giu"]+=1
+            elif "-07" in val["created"]:
+                dizionario2023["lug"]+=1
+            elif "-08" in val["created"]:
+                dizionario2023["ago"]+=1
+            elif "-09" in val["created"]:
+                dizionario2023["sett"]+=1
+            elif "-10" in val["created"]:
+                dizionario2023["ott"]+=1
+            elif "-11" in val["created"]:
+                dizionario2023["nov"]+=1
+            elif "-12" in val["created"]:
+                dizionario2023["dic"]+=1
+    
+    file_excel = xlsxwriter.Workbook('file_meseTotale.xlsx')
+    foglio_excel = file_excel.add_worksheet()
+
+    # scriviamo nella prima cella nella prima colonna una stringa
+    foglio_excel.write('A1', 'mese')
+    foglio_excel.write('B1', '#applet')
+    foglio_excel.write('C1', '#applet')    
+
+    i=2
+    for a,b in dizionario2018.items():
+        
+        foglio_excel.write_row('A%d' % (i), [a])
+        foglio_excel.write_row('B%d' % (i), [b])
+        i+=1
+
+    for a,b in dizionario2019.items():
+        
+        foglio_excel.write_row('A%d' % (i), [a])
+        foglio_excel.write_row('B%d' % (i), [b])
+        i+=1
+
+    for a,b in dizionario2020.items():
+        
+        foglio_excel.write_row('A%d' % (i), [a])
+        foglio_excel.write_row('B%d' % (i), [b])
+        i+=1
+    
+    for a,b in dizionario2021.items():
+        
+        foglio_excel.write_row('A%d' % (i), [a])
+        foglio_excel.write_row('B%d' % (i), [b])
+        
+        i+=1
+
+    for a,b in dizionario2022.items():
+        
+        foglio_excel.write_row('A%d' % (i), [a])
+        foglio_excel.write_row('B%d' % (i), [b])
+        
+        i+=1
+    
+    for a,b in dizionario2023.items():
+        
+        foglio_excel.write_row('A%d' % (i), [a])
+        foglio_excel.write_row('B%d' % (i), [b])
+        i+=1
+
+    file_excel.close()
+
+    print("fatto")
 
 
 #applet uniche (come ho fatto per doc, un po' useless)
