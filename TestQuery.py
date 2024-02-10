@@ -22,13 +22,21 @@ def main():
     #privacy(doc) #<- done
     #iotapp(doc) #<- done
     #appletAnnue(doc) #<- done
+    #appletAnnue2(collection) #<- non la uso, era per verifica
     #categoriePercentuali(doc) #<- done
     #heatmap(doc) #<- done
+    #wordCloud(doc) #<- done
+
+    #nuovo1(doc)
+    #nuovo2(doc)
+    #nuovo3(doc)
+    #nuovo4(doc)
+
+
     #autorePerApplet(collection) #<- done
     #addCountPerApplet(collection) #<- done
-    numAppletPerMese2023(collection)
-
-
+    #numAppletPerMese2023(collection) #<- done
+    
     #repetition(collection)
     #argomento(collection) #<-???
     #boh(collection,doc)
@@ -50,7 +58,7 @@ def dizionarioIdUnici(collection):
     doc={}
     i=0
     #skill con id unico
-    pipeline = [{"$group": {"_id": {"id": "$id","trigger":"$triggers", "actions": "$actions","titolo":"$title","creatore":"$creatorName","dataCreata":"$created"}, "ripetute": {"$sum": 1}}}]
+    pipeline = [{"$group": {"_id": {"id": "$id","trigger":"$triggers", "actions": "$actions","titolo":"$title","creatore":"$creatorName","dataCreata":"$created","addCount":"$addCount"}, "ripetute": {"$sum": 1}}}]
     result = list(collection.aggregate(pipeline))
     
     for val in result:
@@ -97,9 +105,25 @@ def skillNegliAnni(collection):
 
 #definisco quanti autori hanno fatto 1 sola applet, quanti 2 ecc ecc
 def autorePerApplet(collection):
+    
+    #0-19
+    #20-39
+    #40-59
+    #60-79
+    #80-99
+    #100-119
+    #120-139
+    #140-159
+    #160-179
+    #180+
+
+    testi = {"0-19":0,"20-39":0,"40-59":0,"60-79":0,"80-99":0,"100-119":0,"120-139":0,"140-159":0,"160-179":0,"180+":0}
+
+
     query={}
     risultato = collection.find(query)
     dizionario=dict()
+
     for val in risultato:
         if val['creatorName'] in dizionario:
             dizionario[val['creatorName']]+=1
@@ -117,8 +141,45 @@ def autorePerApplet(collection):
             contatore[b]=1
     contatore_ordinato = dict(sorted(contatore.items(),key=lambda x: x[1]))
 
+    #0-19
+    #20-39
+    #40-59
+    #60-79
+    #80-99
+    #100-119
+    #120-139
+    #140-159
+    #160-179
+    #180+
+
+    for applet,autori in contatore_ordinato.items():
+        if 0<=autori<=19:
+            testi["0-19"]+=applet
+        if 20<=autori<=39:
+            testi["20-39"]+=applet
+        if 40<=autori<=59:
+            testi["40-59"]+=applet
+        if 60<=autori<=79:
+            testi["60-79"]+=applet
+        if 80<=autori<=99:
+            testi["80-99"]+=applet
+        if 100<=autori<=119:
+            testi["100-119"]+=applet
+        if 120<=autori<=139:
+            testi["120-139"]+=applet
+        if 140<=autori<=159:
+            testi["140-159"]+=applet
+        if 160<=autori<=179:
+            testi["160-179"]+=applet
+        if autori>=180:
+            testi["180+"]+=applet
+
+    print(testi)
+
+    
+
     # creiamo il file
-    file_excel = xlsxwriter.Workbook('file_di_prova.xlsx')
+    file_excel = xlsxwriter.Workbook('file_di_prova2.xlsx')
     # creiamo un foglio
     foglio_excel = file_excel.add_worksheet()
     # scriviamo nella prima cella nella prima colonna una stringa
@@ -130,7 +191,7 @@ def autorePerApplet(collection):
     fx = open("log3.txt","w")
     #print(f'chiave: ; valore: ',file=fx)
     i=2
-    for a,b in contatore_ordinato.items():
+    for a,b in testi.items():
         foglio_excel.write_row('A%d' % (i), [a])
         foglio_excel.write_row('B%d' % (i), [b])
         i+=1
@@ -189,12 +250,12 @@ def addCountPerApplet(collection):
 def numAppletPerMese2023(collection):
     query={}
     risultato = collection.find(query)
-    dizionario2018 = {"gen":0,"feb":0,"mar":0,"apr":0,"mag":0,"giu":0,"lug":0,"ago":0,"sett":0,"ott":0,"nov":0,"dic":0}
-    dizionario2019 = {"gen":0,"feb":0,"mar":0,"apr":0,"mag":0,"giu":0,"lug":0,"ago":0,"sett":0,"ott":0,"nov":0,"dic":0}
-    dizionario2020 = {"gen":0,"feb":0,"mar":0,"apr":0,"mag":0,"giu":0,"lug":0,"ago":0,"sett":0,"ott":0,"nov":0,"dic":0}
-    dizionario2021 = {"gen":0,"feb":0,"mar":0,"apr":0,"mag":0,"giu":0,"lug":0,"ago":0,"sett":0,"ott":0,"nov":0,"dic":0}
-    dizionario2022 = {"gen":0,"feb":0,"mar":0,"apr":0,"mag":0,"giu":0,"lug":0,"ago":0,"sett":0,"ott":0,"nov":0,"dic":0}
-    dizionario2023 = {"gen":0,"feb":0,"mar":0,"apr":0,"mag":0,"giu":0,"lug":0,"ago":0,"sett":0,"ott":0,"nov":0,"dic":0}
+    dizionario2018 = {"gen 2018":0,"feb 2018":0,"mar 2018":0,"apr 2018":0,"mag 2018":0,"giu 2018":0,"lug 2018":0,"ago 2018":0,"sett 2018":0,"ott 2018":0,"nov 2018":0,"dic 2018":0}
+    dizionario2019 = {"gen 2019":0,"feb 2019":0,"mar 2019":0,"apr 2019":0,"mag 2019":0,"giu 2019":0,"lug 2019":0,"ago 2019":0,"sett 2019":0,"ott 2019":0,"nov 2019":0,"dic 2019":0}
+    dizionario2020 = {"gen 2018":0,"feb 2018":0,"mar 2018":0,"apr 2018":0,"mag 2018":0,"giu 2018":0,"lug 2018":0,"ago 2018":0,"sett 2020":0,"ott 2020":0,"nov 2020":0,"dic 2020":0}
+    dizionario2021 = {"gen 2018":0,"feb 2018":0,"mar 2018":0,"apr 2018":0,"mag 2018":0,"giu 2018":0,"lug 2018":0,"ago 2018":0,"sett 2018":0,"ott 2018":0,"nov 2018":0,"dic 2018":0}
+    dizionario2022 = {"gen 2018":0,"feb 2018":0,"mar 2018":0,"apr 2018":0,"mag 2018":0,"giu 2018":0,"lug 2018":0,"ago 2018":0,"sett 2018":0,"ott 2018":0,"nov 2018":0,"dic 2018":0}
+    dizionario2023 = {"gen 2018":0,"feb 2018":0,"mar 2018":0,"apr 2018":0,"mag 2018":0,"giu 2018":0,"lug 2018":0,"ago 2018":0,"sett 2018":0,"ott 2018":0,"nov 2018":0,"dic 2018":0}
     
     
     
@@ -410,6 +471,27 @@ def numAppletPerMese2023(collection):
     print("fatto")
 
 
+#applet create nei vari anni versione2
+def appletAnnue2(collection):
+    query={}
+    risultato = collection.find(query)
+    anno={"18":0,"19":0,"20":0,"21":0,"22":0,"23":0}
+    for val in risultato:
+        if "2018" in val["created"]:
+            anno["18"]+=1
+        elif "2019" in val["created"]:
+            anno["19"]+=1
+        elif "2020" in val["created"]:
+            anno["20"]+=1
+        elif "2021" in val["created"]:
+            anno["21"]+=1
+        elif "2022" in val["created"]:
+            anno["22"]+=1
+        elif "2023" in val["created"]:
+            anno["23"]+=1
+    print(anno)
+
+
 #applet uniche (come ho fatto per doc, un po' useless)
 def valUnici(collection,tot):
     #id unici senza ripetizioni
@@ -483,7 +565,7 @@ def prime_venti_skill(collection,campo):
     
     pipeline = [
         {"$sort": {campo: -1}},
-        {"$limit": 200},
+        {"$limit": 2000},
         {"$group": {"_id": {"id": "$id", "creatore": "$creatorName", "titolo":"$title"}, "ripetute": {"$sum": 1}}}
     ]
 
@@ -638,15 +720,21 @@ def privacy(doc):
 #tutte le applet prettamente iot
 def iotapp(doc):
     iot=0
-    keyword = ["turn on","light","turn off","iot"]
+    keyword = ["turn","light","increse","decrese","iot","alexa","hue","volume","camera","lights","home"]
     for i in range(len(doc)):
         try:
             stringa1 = doc[i]['actions']
             stringaAppoggio1 = eval(stringa1[1:-1])
-            actionDesc=stringaAppoggio1["actionDesc"]
-            if isinstance(actionDesc,str): #controllo se stringa valida
+            actionDesc=stringaAppoggio1["actionDesc"].lower()
+            stringa2 = doc[i]['trigger']
+            stringaAppoggio2 = eval(stringa2[1:-1])
+            triggerDesc=stringaAppoggio2["triggerDesc"].lower()
+            titolo=doc[i]['titolo'].lower()
+
+            valore = titolo + " " + actionDesc + " "+ triggerDesc
+            if isinstance(valore,str): #controllo se stringa valida
                 for val in keyword:
-                    if val in actionDesc:
+                    if val in valore:
                         iot+=1
         except Exception as e:
             pass
@@ -779,14 +867,194 @@ def heatmap(doc):
 
     return (print(risultati))
 
+def wordCloud(doc):
 
+    wordcloud={}
+    
+    for i in range(len(doc)):
+        #print(doc[i])
+            titolo = doc[i]['titolo']
+            if isinstance(titolo,str): #controllo se stringa valida
+                for parola in titolo.split():
+                    try:
+                        if parola.lower() in wordcloud:
+                            wordcloud[parola.lower()]+=1
+                        else:
+                            wordcloud[parola.lower()]=1
+                    except Exception as e:
+                        pass
+
+    wordcloud_ordinato = sorted(wordcloud.items(), key=lambda x: x[1])
+
+
+    file_excel = xlsxwriter.Workbook('wordcloud.xlsx')
+
+    # creiamo un foglio
+    foglio_excel = file_excel.add_worksheet()
+
+    # scriviamo nella prima cella nella prima colonna una stringa
+    foglio_excel.write('A1', 'chiave')
+    foglio_excel.write('B1', 'valore')
     
 
+    i=2
+    for a,b in wordcloud.items():
+        foglio_excel.write_row('A%d' % (i), [a])
+        foglio_excel.write_row('B%d' % (i), [b])
+        i+=1
+
+    file_excel.close()
+
+    #print(wordcloud_ordinato)
+
+def nuovo1(doc):
+
+    disordinato = {"1":0,"10":0,"100":0,"1000":0,"10000":0,"100000":0}
+    
+    for i in range(len(doc)):
+        if 0<= doc[i]["addCount"] <= 1:
+            disordinato["1"]+=1
+
+        if 2<= doc[i]["addCount"] <=9:
+            disordinato["10"]+=1
+
+        if 10<= doc[i]["addCount"] <=99:
+            disordinato["100"]+=1
+
+        if 100<= doc[i]["addCount"] <=999:
+            disordinato["1000"]+=1
+
+        if 1000<= doc[i]["addCount"] <=9999:
+            disordinato["10000"]+=1
+
+        if doc[i]["addCount"] > 9999:
+            disordinato["100000"]+=1
+        
+                
+
+        #if str(doc[i]["addCount"]) in disordinato:
+        #    disordinato[str(doc[i]["addCount"])]+=1
+        #else:
+        #    disordinato[str(doc[i]["addCount"])]=1
+        
+        #disordinato[doc[i]["titolo"]]=doc[i]["addCount"]
+
+    
+    #ordinato = sorted(disordinato.items(), key=lambda x: x[1])
+
+    file_excel = xlsxwriter.Workbook('ordinatoSTRRange2.xlsx')
+
+    # creiamo un foglio
+    foglio_excel = file_excel.add_worksheet()
+
+    # scriviamo nella prima cella nella prima colonna una stringa
+    foglio_excel.write('A1', 'chiave')
+    foglio_excel.write('B1', 'valore')
+    
+
+    i=2
+    for a,b in disordinato.items():
+        foglio_excel.write_row('A%d' % (i), [a])
+        foglio_excel.write_row('B%d' % (i), [b])
+        i+=1
+
+    file_excel.close()
+
+class Trigger:
+    def __init__(self, titolo, desc,count):
+        self.titolo = titolo
+        self.desc = desc
+        self.count = count
+
+    def stampa(self):
+        print(f"{self.desc} ({self.titolo}) - volte : {self.count} ")
+
+#prendo applet più scaricate
+#prendo triggerDesc e triggerTitle
+def nuovo2(doc):
+    lista_trigger=[]
+    lista_duplicati=[]
+    for i in range(len(doc)):
+        try:
+            stringa1 = doc[i]['trigger']
+            stringaAppoggio1 = eval(stringa1[1:-1])
+            triggerTitle=stringaAppoggio1["triggerChannelTitle"]
+            triggerDesc=stringaAppoggio1["triggerDesc"]
+            if triggerDesc not in lista_duplicati:
+                if isinstance(triggerTitle,str):
+                    if isinstance(triggerDesc,str):
+                        t=Trigger(triggerTitle,triggerDesc,doc[i]["addCount"])
+                        lista_duplicati.append(triggerDesc)
+                        lista_trigger.append(t)
+        except Exception as e:
+                    pass
+    
+
+    lista_trigger_ordinato = sorted(lista_trigger, key=lambda trigger: trigger.count, reverse=True)
+
+    for i in range(10):
+        lista_trigger_ordinato[i].stampa()
 
 
-#TODO
-#latenza, da fare manualmente
+#prendo applet più scaricate
+#prendo actionDesc e actionTitle
+def nuovo3(doc):
+    lista_trigger=[]
+    lista_duplicati=[]
+    for i in range(len(doc)):
+        try:
+            stringa1 = doc[i]['actions']
+            stringaAppoggio1 = eval(stringa1[1:-1])
+            triggerTitle=stringaAppoggio1["actionChannelTitle"]
+            triggerDesc=stringaAppoggio1["actionDesc"]
+            if triggerDesc not in lista_duplicati:
+                if isinstance(triggerTitle,str):
+                    if isinstance(triggerDesc,str):
+                        t=Trigger(triggerTitle,triggerDesc,doc[i]["addCount"])
+                        lista_duplicati.append(triggerDesc)
+                        lista_trigger.append(t)
+        except Exception as e:
+                    pass
+    
 
+    lista_trigger_ordinato = sorted(lista_trigger, key=lambda trigger: trigger.count, reverse=True)
+
+    
+    for i in range(10):
+        lista_trigger_ordinato[i].stampa()
+
+def nuovo4(doc):
+    lista_creator={}
+    lista_duplicati=[]
+
+    for i in range(len(doc)):
+        try:
+            creatore = doc[i]['creatore']
+            count = doc[i]['addCount']
+            if isinstance(creatore,str):
+                if creatore not in lista_duplicati:
+                    lista_creator[creatore] = count
+                    lista_duplicati.append(creatore)
+        except Exception as e:
+                    pass
+
+    file_excel = xlsxwriter.Workbook('tuttiCreator.xlsx')
+
+    # creiamo un foglio
+    foglio_excel = file_excel.add_worksheet()
+
+    # scriviamo nella prima cella nella prima colonna una stringa
+    foglio_excel.write('A1', 'creatore')
+    foglio_excel.write('B1', 'count')
+    
+
+    i=2
+    for a,b in lista_creator.items():
+        foglio_excel.write_row('A%d' % (i), [a])
+        foglio_excel.write_row('B%d' % (i), [b])
+        i+=1
+
+    file_excel.close()
 
 
 #WIP (mi devo basare sulla transitività? come arrivo a un punto A a un punto B attraverso più regole?)
@@ -796,28 +1064,6 @@ def transitivita(doc):
 
     #devo controllare per ogni trigger le varie action, magari farlo per un num limitato
     return
-    
-    
-
-
-#query di test
-def test(collection,tot):
-    #ProPublica quante skill ha fatto
-    creatorNmae = {'creatorName': 'ProPublica'}
-    ris_creatorName = collection.count_documents(creatorNmae)
-    print("il craetor ProPublica ha fatto "+ str(ris_creatorName) +" skill")
-
-    #quanti con creatorUrl?
-    creatorUrl = {"creatorUrl": {"$regex": "ifttt", "$options": "i"}}
-    ris_creatorUrl = collection.count_documents(creatorUrl)
-    print("ci sono "+ str(ris_creatorUrl) +" url di creator su "+ str(tot) +" linee")
-    return
-
-
-        #COME CONTO IL NUM DI ACTION? COME PRENDO SOLO I CHANNEL?
-    #stringa = doc[0]['actions']
-    #dizionario = eval(stringa[1:-1])
-    #print(dizionario["actionChannelTitle"])
 
 # Chiamata alla funzione main nel contesto globale
 if __name__ == "__main__":
